@@ -55,7 +55,7 @@ io.on('connection', (socket) => {
     io.on('disconnect', () => console.log('Disconnected'))
 })
 
-app.use(cors())
+app.use(cors({ origin: "*" }))
 app.use(router)
 
 server.listen(PORT, () => console.log(`Server has been started on PORT ${PORT}`))

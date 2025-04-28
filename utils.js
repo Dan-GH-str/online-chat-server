@@ -12,7 +12,7 @@ const dispatchFile = (reqPath, res, type) => {
         } else {
             const filePath = path.join(__dirname, reqPath);
 
-            console.log(path.basename(filePath));
+            console.log("PATH", filePath);
 
             if (type === "img") res.sendFile(filePath)
             else if (type === "doc") {

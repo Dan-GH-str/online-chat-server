@@ -1,56 +1,72 @@
-// подключение express и модуля http
+// Подключение express и модуля http
 require('dotenv').config()
 const express = require("express")
 const { Server } = require('socket.io')
 const cors = require('cors')
 const http = require('http')
+const cookieParser = require('cookie-parser')
+
+// Routes
+const authRoutes = require('./routers/authRoutes')
+const mainRoutes = require('./routers/mainRoutes')
 
 // БД
 const sequelize = require('./db')
 const models = require('./models/models')
 
 const fs = require('fs')
-const path = require('path');
-const router = require('./router')
+const path = require('path')
+// const router = require('./router')
 const { addUser, getRoomUsers, removeUser } = require('./user')
 const { createHash } = require('crypto')
-const { Readable } = require('stream');
-const { finished } = require('node:stream/promises');
+const { Readable } = require('stream')
+const { finished } = require('node:stream/promises')
 const { IMG, DOCS } = require('./directories')
 const { filesDataTemplate } = require('./classes/filesData')
 const { DatabaseService } = require('./API/DatabaseService')
+const { count } = require('node:console')
 
 // создаем объект приложения
 const app = express();
-
-app.use(cors({ origin: "*" }))
-app.use(router)
 
 // Создание сервера
 const PORT = process.env.PORT || 5000
 const server = http.createServer(app)
 
+app.use(cors({ 
+    origin: "http://localhost:3000",
+    credentials: true
+}))
+
+app.use(express.json()) //  Обработка JSON-тела запроса
+app.use(cookieParser()) // Используем cookie-parser
+
+// app.use(router)
+
+app.use('/auth', authRoutes) // Роуты аутентификации
+app.use('/api', mainRoutes)  // API роуты (защищенные и открытые)
+
 const Admin = {
-    name: "Admin"
+    username: "Admin"
 }
 
 // Отправка сообщения клиентам и в бд
-const sendData = async (filesData, user, message) => {
+const sendData = async (filesData, params, message) => {
     console.log("FILES ", filesData);
-    console.log("DATA", {data: { user, text: message, filesData }});
+    console.log("DATA", {data: { user: params.user, text: message, filesData }});
 
     // Генерация уникального id для нового сообщения в комнате
-    const id = await DatabaseService.generateMessageID(user.room)
+    const id = await DatabaseService.generateMessageID(params.room)
 
-    const messageData = { id, user, text: message, filesData }
+    const messageData = { id, user: params.user, text: message, filesData }
 
     // Отправка сообщения всем пользователям в комнате отправителя
-    io.to(user.room).emit('message', {data: messageData })
+    io.to(params.room).emit('message', {data: messageData })
 
     
 
     // Обновление экземпляра с новой историей сообщений
-    DatabaseService.updateMessagesHistory(user.room, messageData)
+    DatabaseService.updateMessagesHistory(params.room, messageData)
 }
 
 // Установление двустороннего соединения с помощью сокетов
@@ -58,53 +74,72 @@ const io = new Server(server, {
     cors: {
         origin: "*",
         methods: ["GET", "POST"]
-    }
+    },
+    maxHttpBufferSize: 1e8, pingTimeout: 60000
 })
 
 io.on('connection', (socket) => {
     // Событие подключения пользователя к комнате со стороны клиента
-    socket.on('join', async ({ name, room }) => {
+    socket.on('join', async ({ user: userData, room }) => {
         // Подключение пользователя к комнате на сервере
         socket.join(room)
 
         const messagesHistory = await DatabaseService.getMessagesFromRoom(room)
 
+        const user = await models.User.findByPk(userData.userId)
+        const chat = await models.Room.findOne({ where: { name: room } })
+
+        if (!user || !chat) {
+            socket.emit('error', { message: 'Пользователь или комната не найдены' });
+        }
+
+        // console.log(user);
         
 
-        // Регистрация новых юзеров или фиксирование уже существующих
-        const { user, isExist } = addUser({ name, room })
+        // Проверяем, существует ли уже связь между пользователем и чатом
+        const hasChat = await user.hasRoom(chat)
 
         // Сообщение пользователю при присоединении к комнате
-        let toUserMessage = isExist ? `${user.name}, ты снова в чате!` : `Добро пожаловать, ${user.name}!`
+        let toUserMessage = hasChat ? `${userData.username}, ты снова в чате!` : `Добро пожаловать, ${userData.username}!`
         const welcomeMessage = { id: 0, user: Admin, text: toUserMessage, filesData: new filesDataTemplate() }
+
+        await user.addRoom(chat)
+        
+        if (!hasChat) {
+            await chat.increment({ countOfUsers: 1 })
+            await chat.reload()
+        }
+        
+        // Регистрация новых юзеров или фиксирование уже существующих
+        // const { user, isExist } = addUser({ name, room })
         // console.log("HISTORy", messagesHistory.push(welcomeMessage));
 
         // Если для комнаты был создат сответствующий экземпляр в бд, передадим сохраненные сообщения клиенту, иначе создадим экземпляр
-        if(messagesHistory !== null) {
+        // if (messagesHistory !== null) {
             messagesHistory.push(welcomeMessage)
             socket.emit('loadMessagesHistory', { data: messagesHistory })
-        }
-        else {
-            await models.Room.create({ name: room, data: [] })
+        // }
+        // else {
+        //     await models.Room.create({ name: room, data: [] })
 
-            socket.emit('message', { data: welcomeMessage })
-        }
+        //     socket.emit('message', { data: welcomeMessage })
+        // }
 
 
         // Если пользователь уже был в комнате, это сообщение никому не придет
-        !isExist && socket.broadcast.to(user.room).emit('message', {data: { id: 0, user: { name: "Admin" }, text: `${user.name} присоединился к чату!`, filesData: new filesDataTemplate() }})
-
+        !hasChat && socket.broadcast.to(room).emit('message', {data: { id: 0, user: { name: "Admin" }, text: `${user.username} присоединился к чату!`, filesData: new filesDataTemplate() }})
+            
         // Передача события присоединения к комнате клиенту
-        io.to(user.room).emit('joinRoom', {data: { users: getRoomUsers(user.room)}})
+        io.to(room).emit('joinRoom', { data: { countOfUsers: chat.countOfUsers } })
     })
 
     // Событие отправки сообщений
     socket.on('sendMessage', async ({ message, params, files = [] } ) => {
         // params представляет из себя объект с названием комнаты и текстом сообщения
-        const user = params
         const countFiles = files.length
         const filesData = new filesDataTemplate()
-
+        console.log("SENDMESSAGE");
+        
         // Обработка файлов, если они есть
         if (countFiles) {
             files.forEach(async ({ id, name, type, buffer, size }, i) => {
@@ -126,7 +161,7 @@ io.on('connection', (socket) => {
                     // Локальный путь до файла
                     filePath = `files/${dir}/${fileNameHashed}${fileExt}`
                     // глобальный путь до файла для клиентов
-                    const myURL = `http://localhost:5000/${filePath}`
+                    const myURL = `http://localhost:5000/api/${filePath}`
 
                     const fileData = { id, type: dir, size, url: myURL, fileName, fileExt }
                     
@@ -146,30 +181,41 @@ io.on('connection', (socket) => {
                 if (i === countFiles - 1) {
                     // Сначала ожидаем пока закончится хеширование последнего файла
                     await finished(stream)
-                    sendData(filesData, user, message)
+                    sendData(filesData, params, message)
                 }
             })
-        } else sendData(filesData, user, message)
+        } else sendData(filesData, params, message)
     })
 
     // Событие отключения от комнаты
-    socket.on('leftRoom', (params) => {
-        // params представляют из себя объект с именем пользователя и названием комнаты, где он находится
-        const user = removeUser(params)
+    socket.on('leftRoom', async (params) => {
+        // params представляют из себя объект с именем пользователя (user) и названием комнаты (room), где он находится
 
-        if (user) {
-            const { name, room } = user
+        try {
+            const user = await models.User.findByPk(params.user.userId)
+            const chat = await models.Room.findOne({ where: { name: params.room } })
 
-            // Сообшение о том, что кто-то покинул комнату
-            io.to(params.room).emit('message', {
-                data: { 
-                    id: -1, 
-                    user: Admin, 
-                    text: `${name} покинул(а) комнату`, 
-                    filesData: new filesDataTemplate() 
-                } 
-            })
-            io.to(params.room).emit('leftRoom', { data: { users: getRoomUsers(room) } })
+            if (user) {
+                // Сообшение о том, что кто-то покинул комнату
+                io.to(params.room).emit('message', {
+                    data: { 
+                        id: -1, 
+                        user: Admin, 
+                        text: `${user.username} покинул(а) комнату`, 
+                        filesData: new filesDataTemplate() 
+                    } 
+                })
+
+                await user.removeRoom(chat)
+
+                await chat.decrement({ countOfUsers: 1 })
+                await chat.reload()
+
+                io.to(params.room).emit('leftRoom', { data: { countOfUsers: chat.countOfUsers } })
+            }
+
+        } catch (error) {
+            console.error(error);
         }
     })
 

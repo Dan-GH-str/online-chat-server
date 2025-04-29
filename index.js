@@ -148,7 +148,7 @@ io.on('connection', (socket) => {
                     // filePath = `files/${dir}/${fileNameHashed}${fileExt}`
                     // глобальный путь до файла для клиентов
                     // const myURL = `http://localhost:5000/api/${filePath}`
-                    filePath = `${__dirname}files/${dir}/${fileNameHashed}${fileExt}`
+                    filePath = `${__dirname}/files/${dir}/${fileNameHashed}${fileExt}`
                     const myURL = `${process.env.SERVER_URL}/api/${filePath.replace(__dirname, '')}`
 
                     console.log("FILEPATH: ", filePath);

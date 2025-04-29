@@ -5,8 +5,8 @@ const trimStr = (str) => str.trim().toLowerCase()
 
 const dispatchFile = (reqPath, res, type) => {
     reqPath = path.join(__dirname, reqPath)
+    console.log("REQPATH: ", reqPath);
     fs.access(reqPath, fs.constants.R_OK, (err) => {
-        console.log("REQPATH: ", reqPath);
         
         // если произошла ошибка - отправляем статусный код 404
         if (err) {

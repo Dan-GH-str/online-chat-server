@@ -22,6 +22,7 @@ const { finished } = require('node:stream/promises')
 const { IMG, DOCS } = require('./directories')
 const { filesDataTemplate } = require('./classes/filesData')
 const { DatabaseService } = require('./API/DatabaseService')
+const { mkdir } = require('node:fs')
 
 // создаем объект приложения
 const app = express();
@@ -162,10 +163,18 @@ io.on('connection', (socket) => {
                     else 
                         filesData.docs.push( fileData )
 
-                    fs.writeFile(`${filePath}`, buffer, "binary", err => {
+                    // fs.writeFile(`${filePath}`, buffer, "binary", err => {
+                    //     if (err) console.log(err)
+                    // })
+
+                    mkdir(path.dirname(filePath), (err) => {
                         if (err) console.log(err)
+                    
+                        fs.writeFile(`${filePath}`, buffer, "binary", err => {
+                            if (err) console.log(err)
+                        })
                     })
-                });
+                })
                 
                 stream.pipe(hash)
 

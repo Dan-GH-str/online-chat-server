@@ -4,7 +4,6 @@ const path = require('path');
 const trimStr = (str) => str.trim().toLowerCase()
 
 const dispatchFile = (reqPath, res, type) => {
-    reqPath = "./" + reqPath
     fs.access(reqPath, fs.constants.R_OK, (err) => {
         console.log("REQPATH: ", reqPath);
         

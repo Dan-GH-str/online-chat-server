@@ -149,8 +149,10 @@ io.on('connection', (socket) => {
                     // filePath = `files/${dir}/${fileNameHashed}${fileExt}`
                     // глобальный путь до файла для клиентов
                     // const myURL = `http://localhost:5000/api/${filePath}`
-                    filePath = `${__dirname}/files/${dir}/${fileNameHashed}${fileExt}`
-                    const myURL = `${process.env.SERVER_URL}/api${filePath.replace(__dirname, '')}`
+                    // filePath = `${__dirname}/files/${dir}/${fileNameHashed}${fileExt}`
+                    const RelativeFilePath = `files/${dir}/${fileNameHashed}${fileExt}`
+                    const AbsoluteFilePath = __dirname + '/' + RelativeFilePath
+                    const myURL = `${process.env.SERVER_URL}/api/${RelativeFilePath}`
 
                     console.log("FILEPATH: ", filePath);
                     console.log("myURL: ", myURL);
@@ -167,10 +169,10 @@ io.on('connection', (socket) => {
                     //     if (err) console.log(err)
                     // })
 
-                    mkdir(path.dirname(filePath), (err) => {
+                    mkdir(path.dirname('./' + RelativeFilePath), (err) => {
                         if (err) console.log(err)
                     
-                        fs.writeFile(`${filePath}`, buffer, "binary", err => {
+                        fs.writeFile(`${AbsoluteFilePath}`, buffer, "binary", err => {
                             if (err) console.log(err)
                         })
                     })

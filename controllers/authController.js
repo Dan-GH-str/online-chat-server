@@ -49,8 +49,8 @@ const login = async (req, res) => {
 
         const cookieOptions = {
             httpOnly: true, // Предотвращает доступ JavaScript
-            // secure: process.env.NODE_ENV === 'production', // Только для HTTPS в production
-            sameSite: 'Lax', //  Защита от CSRF (лучше всего 'Strict', но необходимы доп настройки???)
+            secure: process.env.NODE_ENV === 'production', // Только для HTTPS в production
+            sameSite: 'None', //  Защита от CSRF (лучше всего 'Strict', но необходимы доп настройки???)
             maxAge: process.env.JWT_EXPIRATION * 1000, // Срок действия cookie (в миллисекундах)
             path: '/' // Куда можно отправлять этот cookie
         }

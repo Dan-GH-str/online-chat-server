@@ -32,7 +32,7 @@ const server = http.createServer(app)
 
 app.use(cors({ 
     // origin: "https://my-online-chat.netlify.app",
-    origin: "http://localhost:3000",
+    origin: "http://localhost:30000",
     credentials: true
 }))
 
@@ -147,8 +147,8 @@ io.on('connection', (socket) => {
                     // Локальный путь до файла
                     filePath = `files/${dir}/${fileNameHashed}${fileExt}`
                     // глобальный путь до файла для клиентов
-                    const myURL = `http://localhost:5000/api/${filePath}`
-                    // const myURL = `https://online-chat-server-c6qh.onrender.com/api/${filePath}`
+                    // const myURL = `http://localhost:5000/api/${filePath}`
+                    const myURL = `https://online-chat-server-c6qh.onrender.com/api/${filePath}`
 
                     const fileData = { id, type: dir, size, url: myURL, fileName, fileExt }
                     

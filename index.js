@@ -45,6 +45,23 @@ app.use(cookieParser()) // Используем cookie-parser
 app.use('/auth', authRoutes) // Роуты аутентификации
 app.use('/api', mainRoutes)  // основные API роуты (защищенные и открытые)
 
+// Подготовка директорий с вайлами (особенность render)
+// const filesDir = path.join(__dirname, 'files')
+// const imagesDir = path.join(__dirname, 'files', 'img')
+// const docsDir = path.join(__dirname, 'files', 'docs')
+
+// if (!fs.existsSync(filesDir)) {
+//     fs.mkdirSync(filesDir, { recursive: true }); // `recursive: true` создаст все необходимые родительские директории
+// }
+
+// if (!fs.existsSync(imagesDir)) {
+//     fs.mkdirSync(imagesDir, { recursive: true }); // `recursive: true` создаст все необходимые родительские директории
+// }
+
+// if (!fs.existsSync(docsDir)) {
+//     fs.mkdirSync(docsDir, { recursive: true }); // `recursive: true` создаст все необходимые родительские директории
+// }
+
 const Admin = {
     username: "Admin"
 }
@@ -169,7 +186,7 @@ io.on('connection', (socket) => {
                     //     if (err) console.log(err)
                     // })
 
-                    mkdir(path.dirname('./' + RelativeFilePath), (err) => {
+                    mkdir(path.dirname('./' + RelativeFilePath), { recursive: true } ,(err) => {
                         if (err) console.log(err)
                     
                         fs.writeFile(`${AbsoluteFilePath}`, buffer, "binary", err => {

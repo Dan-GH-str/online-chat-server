@@ -162,7 +162,7 @@ io.on('connection', (socket) => {
                     else 
                         filesData.docs.push( fileData )
 
-                    fs.writeFile(`./${filePath}`, buffer, "binary", err => {
+                    fs.writeFile(`${filePath}`, buffer, "binary", err => {
                         if (err) console.log(err)
                     })
                 });

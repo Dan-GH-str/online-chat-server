@@ -16,15 +16,12 @@ const models = require('./models/models')
 
 const fs = require('fs')
 const path = require('path')
-// const router = require('./router')
-const { addUser, getRoomUsers, removeUser } = require('./user')
 const { createHash } = require('crypto')
 const { Readable } = require('stream')
 const { finished } = require('node:stream/promises')
 const { IMG, DOCS } = require('./directories')
 const { filesDataTemplate } = require('./classes/filesData')
 const { DatabaseService } = require('./API/DatabaseService')
-const { count } = require('node:console')
 
 // создаем объект приложения
 const app = express();
@@ -109,21 +106,9 @@ io.on('connection', (socket) => {
             await chat.increment({ countOfUsers: 1 })
             await chat.reload()
         }
-        
-        // Регистрация новых юзеров или фиксирование уже существующих
-        // const { user, isExist } = addUser({ name, room })
-        // console.log("HISTORy", messagesHistory.push(welcomeMessage));
 
-        // Если для комнаты был создат сответствующий экземпляр в бд, передадим сохраненные сообщения клиенту, иначе создадим экземпляр
-        // if (messagesHistory !== null) {
-            messagesHistory.push(welcomeMessage)
-            socket.emit('loadMessagesHistory', { data: messagesHistory })
-        // }
-        // else {
-        //     await models.Room.create({ name: room, data: [] })
-
-        //     socket.emit('message', { data: welcomeMessage })
-        // }
+        messagesHistory.push(welcomeMessage)
+        socket.emit('loadMessagesHistory', { data: messagesHistory })
 
 
         // Если пользователь уже был в комнате, это сообщение никому не придет

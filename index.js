@@ -211,9 +211,9 @@ io.on('connection', (socket) => {
 const start = async () => {
     try {
         await sequelize.authenticate().catch(error => console.error(error))    // Подключение к бд
-        await sequelize.sync()
+        await sequelize.sync({ force: true })
         server.listen(PORT, () => console.log(`Server has been started on port ${PORT}`))
-
+        
         // const data = []
         // data.push({text: "aaa", user: "Admin"})
 

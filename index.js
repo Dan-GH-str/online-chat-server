@@ -45,23 +45,6 @@ app.use(cookieParser()) // Используем cookie-parser
 app.use('/auth', authRoutes) // Роуты аутентификации
 app.use('/api', mainRoutes)  // основные API роуты (защищенные и открытые)
 
-// Подготовка директорий с вайлами (особенность render)
-// const filesDir = path.join(__dirname, 'files')
-// const imagesDir = path.join(__dirname, 'files', 'img')
-// const docsDir = path.join(__dirname, 'files', 'docs')
-
-// if (!fs.existsSync(filesDir)) {
-//     fs.mkdirSync(filesDir, { recursive: true }); // `recursive: true` создаст все необходимые родительские директории
-// }
-
-// if (!fs.existsSync(imagesDir)) {
-//     fs.mkdirSync(imagesDir, { recursive: true }); // `recursive: true` создаст все необходимые родительские директории
-// }
-
-// if (!fs.existsSync(docsDir)) {
-//     fs.mkdirSync(docsDir, { recursive: true }); // `recursive: true` создаст все необходимые родительские директории
-// }
-
 const Admin = {
     username: "Admin"
 }
@@ -162,16 +145,14 @@ io.on('connection', (socket) => {
                     hash.end();
                     const fileNameHashed = `${fileName}_${hash.read()}`
 
-                    // Локальный путь до файла
-                    // filePath = `files/${dir}/${fileNameHashed}${fileExt}`
-                    // глобальный путь до файла для клиентов
-                    // const myURL = `http://localhost:5000/api/${filePath}`
-                    // filePath = `${__dirname}/files/${dir}/${fileNameHashed}${fileExt}`
+                    // Локальные пути до файла
                     const RelativeFilePath = `files/${dir}/${fileNameHashed}${fileExt}`
                     const AbsoluteFilePath = __dirname + '/' + RelativeFilePath
+                    // глобальный путь до файла для клиентов
+                    // const myURL = `http://localhost:5000/api/${RelativeFilePath}`
                     const myURL = `${process.env.SERVER_URL}/api/${RelativeFilePath}`
 
-                    console.log("RelativeFilePath: ", RelativeFilePath);
+                    // console.log("RelativeFilePath: ", RelativeFilePath);
                     console.log("myURL: ", myURL);
                     
 

@@ -148,7 +148,8 @@ io.on('connection', (socket) => {
                     filePath = `files/${dir}/${fileNameHashed}${fileExt}`
                     // глобальный путь до файла для клиентов
                     // const myURL = `http://localhost:5000/api/${filePath}`
-                    const myURL = `https://online-chat-server-c6qh.onrender.com/api/${filePath}`
+                    // const myURL = `https://online-chat-server-c6qh.onrender.com/api/${filePath}`
+                    const myURL = `${process.env.SERVER_URL}/api/${filePath}`
 
                     const fileData = { id, type: dir, size, url: myURL, fileName, fileExt }
                     

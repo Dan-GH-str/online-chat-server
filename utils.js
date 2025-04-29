@@ -5,12 +5,15 @@ const trimStr = (str) => str.trim().toLowerCase()
 
 const dispatchFile = (reqPath, res, type) => {
     fs.access(reqPath, fs.constants.R_OK, (err) => {
+        console.log("REQPATH: ", reqPath);
+        
         // если произошла ошибка - отправляем статусный код 404
         if (err) {
-            res.statusCode = 404;
-            res.end("Resourse not found!");
+            console.error(err)
+            res.statusCode = 404
+            res.end("Resourse not found!")
         } else {
-            const filePath = path.join(__dirname, reqPath);
+            const filePath = path.join(__dirname, reqPath)
 
             console.log("PATH", filePath);
 

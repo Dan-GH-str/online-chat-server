@@ -31,8 +31,8 @@ const PORT = process.env.PORT || 5000
 const server = http.createServer(app)
 
 app.use(cors({ 
-    origin: "https://my-online-chat.netlify.app",
-    // origin: "http://localhost:3000",
+    // origin: "https://my-online-chat.netlify.app",
+    origin: "http://localhost:3000",
     credentials: true
 }))
 
@@ -42,7 +42,7 @@ app.use(cookieParser()) // Используем cookie-parser
 // app.use(router)
 
 app.use('/auth', authRoutes) // Роуты аутентификации
-app.use(mainRoutes)  // основные API роуты (защищенные и открытые)
+app.use('/api', mainRoutes)  // основные API роуты (защищенные и открытые)
 
 const Admin = {
     username: "Admin"
@@ -147,8 +147,8 @@ io.on('connection', (socket) => {
                     // Локальный путь до файла
                     filePath = `files/${dir}/${fileNameHashed}${fileExt}`
                     // глобальный путь до файла для клиентов
-                    // const myURL = `http://localhost:5000/api/${filePath}`
-                    const myURL = `https://online-chat-server-c6qh.onrender.com/api/${filePath}`
+                    const myURL = `http://localhost:5000/api/${filePath}`
+                    // const myURL = `https://online-chat-server-c6qh.onrender.com/api/${filePath}`
 
                     const fileData = { id, type: dir, size, url: myURL, fileName, fileExt }
                     

@@ -82,6 +82,8 @@ router.post('/createChat', async (req, res) => {
         await Room.create({ name, data: [] })
         res.status(200).send('Chat created successfully')
     } catch (error) {
+        console.error(error);
+        
         res.status(500).send('Failed to create chat')
     }
 })

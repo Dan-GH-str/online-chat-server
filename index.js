@@ -171,7 +171,7 @@ io.on('connection', (socket) => {
                     const AbsoluteFilePath = __dirname + '/' + RelativeFilePath
                     const myURL = `${process.env.SERVER_URL}/api/${RelativeFilePath}`
 
-                    console.log("FILEPATH: ", filePath);
+                    console.log("RelativeFilePath: ", RelativeFilePath);
                     console.log("myURL: ", myURL);
                     
 

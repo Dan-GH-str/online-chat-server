@@ -31,8 +31,8 @@ const PORT = process.env.PORT || 5000
 const server = http.createServer(app)
 
 app.use(cors({ 
-    // origin: "https://my-online-chat.netlify.app",
-    origin: "http://localhost:30000",
+    origin: "https://my-online-chat.netlify.app",
+    // origin: "http://localhost:3000",
     credentials: true
 }))
 

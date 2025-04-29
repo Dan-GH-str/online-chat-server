@@ -16,9 +16,9 @@ module.exports = new Sequelize(
           options: `project=${ENDPOINT_ID}`,
       },
       dialectOptions: {
-        // ssl: {
-        //   "require": true,
-        // }
+        ssl: {
+          "require": true,
+        }
       }
   }
 )

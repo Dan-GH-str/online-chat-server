@@ -145,11 +145,11 @@ io.on('connection', (socket) => {
                     const fileNameHashed = `${fileName}_${hash.read()}`
 
                     // Локальный путь до файла
-                    filePath = `files/${dir}/${fileNameHashed}${fileExt}`
+                    // filePath = `files/${dir}/${fileNameHashed}${fileExt}`
                     // глобальный путь до файла для клиентов
                     // const myURL = `http://localhost:5000/api/${filePath}`
-                    // const myURL = `https://online-chat-server-c6qh.onrender.com/api/${filePath}`
-                    const myURL = `${process.env.SERVER_URL}/api/${filePath}`
+                    filePath = `${__dirname}/files/${dir}/${fileNameHashed}${fileExt}`
+                    const myURL = `${process.env.SERVER_URL}/api/${filePath.replace(__dirname, '')}`
 
                     const fileData = { id, type: dir, size, url: myURL, fileName, fileExt }
                     

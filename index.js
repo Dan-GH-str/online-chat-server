@@ -42,7 +42,7 @@ app.use(cookieParser()) // Используем cookie-parser
 // app.use(router)
 
 app.use('/auth', authRoutes) // Роуты аутентификации
-app.use('/api', mainRoutes)  // API роуты (защищенные и открытые)
+app.use(mainRoutes)  // основные API роуты (защищенные и открытые)
 
 const Admin = {
     username: "Admin"

@@ -32,8 +32,9 @@ const PORT = process.env.PORT || 5000
 const server = http.createServer(app)
 
 app.use(cors({ 
-    origin: "https://my-online-chat.netlify.app",
+    // origin: "https://my-online-chat.netlify.app",
     // origin: "http://localhost:3000",
+    origin: process.env.CLIENT_HOSTING_URL,
     credentials: true
 }))
 
@@ -114,7 +115,7 @@ io.on('connection', (socket) => {
 
 
         // Если пользователь уже был в комнате, это сообщение никому не придет
-        !hasChat && socket.broadcast.to(room).emit('message', {data: { id: 0, user: { name: "Admin" }, text: `${user.username} присоединился к чату!`, filesData: new filesDataTemplate() }})
+        !hasChat && socket.broadcast.to(room).emit('message', {data: { id: 0, user: Admin, text: `${user.username} присоединился к чату!`, filesData: new filesDataTemplate() }})
             
         // Передача события присоединения к комнате клиенту
         io.to(room).emit('joinRoom', { data: { countOfUsers: chat.countOfUsers } })
@@ -202,7 +203,7 @@ io.on('connection', (socket) => {
                     data: { 
                         id: -1, 
                         user: Admin, 
-                        text: `${user.username} покинул(а) комнату`, 
+                        text: `${user.username} покинул(а) чат`, 
                         filesData: new filesDataTemplate() 
                     } 
                 })

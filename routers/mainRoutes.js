@@ -80,11 +80,17 @@ router.post('/createChat', async (req, res) => {
         const { name } = req.body
         
         await Room.create({ name, data: [] })
-        res.status(200).send('Chat created successfully')
+        res.status(201).send('Chat created successfully')
     } catch (error) {
         console.error(error);
         
-        res.status(500).send('Failed to create chat')
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            // Обработка ошибки уникальности
+            res.status(400).send('Чат с таким именем уже существует.'); 
+        } else {
+            // Обработка других ошибок
+            res.status(500).send('Не удалось создать чат.');
+        }
     }
 })
 

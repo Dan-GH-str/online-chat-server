@@ -23,7 +23,10 @@ const register = async (req, res) => {
 
         const user = await User.create({ username, password })
         const token = generateToken(user)
-        res.status(201).json({ token, user: { userId: user.id, username: user.username }  })
+        
+        // Установка JWT в качестве HTTP-only cookie
+        res.cookie('token', token, cookieOptions)
+        res.status(201).json({ user: { userId: user.id, username: user.username }  })
     } catch (error) {
         console.error(error)
         res.status(500).json({ message: 'Ошибка при регистрации пользователя' })

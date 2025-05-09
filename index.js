@@ -229,25 +229,9 @@ const start = async () => {
         await sequelize.authenticate().catch(error => console.error(error))    // Подключение к бд
         await sequelize.sync()
         server.listen(PORT, () => console.log(`Server has been started on port ${PORT}`))
-        
-        // const data = []
-        // data.push({text: "aaa", user: "Admin"})
-
-        // const room1 = await models.Room.create({ name: "room3", data })
-
-        // const room = await models.Room.findOne({
-        //     raw: true,
-        //     where: {
-        //         "name": "room4"
-        //     }
-        // })
-        // console.log("ROOM: ", room);
-        // await room1.destroy()
-        
     } catch (e) {
         console.log(e)
     }
 }
 
 start()
-// server.listen(5000, () => console.log(`Server is running on ${PORT} port`));

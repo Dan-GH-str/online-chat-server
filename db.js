@@ -11,15 +11,15 @@ module.exports = new Sequelize(
       username: PGUSER,
       password: PGPASSWORD,
       port: 5432,
-      // ssl: 'require',
+      ssl: 'require',
       connection: {
           options: `project=${ENDPOINT_ID}`,
       },
-      // dialectOptions: {
-      //   ssl: {
-      //     "require": true,
-      //   }
-      // }
+      dialectOptions: {
+        ssl: {
+          "require": true,
+        }
+      }
   }
 )
 

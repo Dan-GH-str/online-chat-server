@@ -9,6 +9,20 @@ const generateToken = (user) => {
     })
 }
 
+const setCookies = (res, token) => {
+    const cookieOptions = {
+        httpOnly: true, // Предотвращает доступ JavaScript
+        // secure: process.env.NODE_ENV === 'production', // Только для HTTPS в production
+        secure: true,
+        sameSite: 'None', //  Защита от CSRF (лучше всего 'Strict', но необходимы доп настройки???)
+        maxAge: process.env.JWT_EXPIRATION * 1000, // Срок действия cookie (в миллисекундах)
+        path: '/' // Куда можно отправлять этот cookie
+    }
+    
+    // Установка JWT в качестве HTTP-only cookie
+    res.cookie('token', token, cookieOptions)
+}
+
 const register = async (req, res) => {
     try {
         console.log(req.body);
@@ -23,9 +37,8 @@ const register = async (req, res) => {
 
         const user = await User.create({ username, password })
         const token = generateToken(user)
-        
-        // Установка JWT в качестве HTTP-only cookie
-        res.cookie('token', token, cookieOptions)
+
+        setCookies(res, token)
         res.status(201).json({ user: { userId: user.id, username: user.username }  })
     } catch (error) {
         console.error(error)
@@ -50,17 +63,7 @@ const login = async (req, res) => {
 
         const token = generateToken(user)
 
-        const cookieOptions = {
-            httpOnly: true, // Предотвращает доступ JavaScript
-            // secure: process.env.NODE_ENV === 'production', // Только для HTTPS в production
-            secure: true,
-            sameSite: 'None', //  Защита от CSRF (лучше всего 'Strict', но необходимы доп настройки???)
-            maxAge: process.env.JWT_EXPIRATION * 1000, // Срок действия cookie (в миллисекундах)
-            path: '/' // Куда можно отправлять этот cookie
-        }
-    
-        // Установка JWT в качестве HTTP-only cookie
-        res.cookie('token', token, cookieOptions)
+        setCookies(res, token)
         res.json({ message: 'Вход выполнен успешно', user: { userId: user.id, username: user.username } })
     } catch (error) {
         console.error(error)
